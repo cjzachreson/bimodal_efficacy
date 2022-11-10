@@ -1,5 +1,7 @@
 #main_DecayFunctions_test.jl
 
+module Test_module
+
 include("DecayFunctions.jl")
 
 #__precompile__(false)
@@ -8,18 +10,24 @@ include("DecayFunctions.jl")
 #    push!(LOAD_PATH, pwd())
 #end
 
-using .DecayFunctions
+#using .DecayFunctions
+using .DecayFunctions 
+
 
 using StatsBase
 using Distributions 
 using Random
 
-function main()
+export main 
+function main(x_in::AbstractFloat, c50_in::AbstractFloat, k_in::AbstractFloat, delta_t::AbstractFloat)
     # testing sigmoid mapping:
-    x = 1.0 
-    c50 = 0.5 
-    k = 5.0
-    y = sigmoid_1(c50, k, x)
+    x = x_in
+    c50 = c50_in
+    k = k_in
+
+    println("c50: $c50")
+
+    y = sigmoid_1(c50, k, log(x))
     println("sigmoid test complete:")
     println("y = $y")
 
@@ -34,7 +42,7 @@ function main()
     tau_1 = 1.0 / 0.0085
     tau_2 = 1.0 / 0.00085
 
-    delta_t = 100.0 
+    #delta_t = 100.0 
 
     (y1, v1, v2) = double_exponential(v0_1, v0_2, tau_1, tau_2, delta_t)
     println("double exponential test complete:")
@@ -45,6 +53,7 @@ function main()
     # generating a heterogeneous population: 
     n = 10
     neuts = zeros(n)
+    efficacy = zeros(n)
 
     seed_neuts = 1
     rng_neuts = MersenneTwister(seed_neuts)
@@ -58,5 +67,26 @@ function main()
     println(neuts)
 
     #TODO next: map each value in neuts through the sigmoidal function sigmoid_1()
+    iterator = 0
+    for neuts_i in neuts 
+        iterator += 1
+        #apply decay function: 
+        (neuts_dt, v1, v2) = double_exponential(neuts_i * w1, neuts_i * w2, tau_1, tau_2, delta_t)
+
+        efficacy[iterator] = sigmoid_1(c50, k, log(neuts_dt))
+    end
+
+    println(efficacy)
 
 end
+
+end 
+
+using .Test_module
+
+x_in = 1.0
+c50_in = -0.5
+k_in = 5.0
+delta_t = 100.0
+
+main(x_in, c50_in, k_in, delta_t)
