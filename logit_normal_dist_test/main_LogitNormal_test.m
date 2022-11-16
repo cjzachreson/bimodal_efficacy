@@ -69,7 +69,8 @@ y2_test = y2_test - mu_offset;
 figure(5)
 histogram(y2_test, 'normalization', 'pdf')
 
-
+% the formulae below were re-arranged until the transform matched, followed
+% by simplification. 
 k =  sig * sig_scaler
 x0 = -(mu/k) + mu_1
 
