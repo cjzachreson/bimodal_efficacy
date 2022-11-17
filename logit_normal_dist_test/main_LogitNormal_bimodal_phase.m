@@ -33,8 +33,8 @@ x_logit_normal = (0:dx:1)';
 % sig = k * sig_1;
 % mu = k * (mu_1 - x0);
 
-sig_1 = 0.5;
-d_sig = 0.1;
+sig_1 = 0.05;
+d_sig = 0.05;
 sig_f = 4;
 
 sig_vals = sig_1:d_sig:sig_f;
@@ -48,7 +48,9 @@ mu_vals = mu_1:d_mu:mu_f;
 n_sig_vals = numel(sig_vals);
 n_mu_vals = numel(mu_vals);
 
-test = zeros(n_sig_vals, n_mu_vals);
+mode_density_ratio = zeros(n_sig_vals, n_mu_vals);
+
+mode_distance = zeros(n_sig_vals, n_mu_vals);
 
 sig_i = 0;
 
@@ -74,18 +76,32 @@ for sig = sig_vals
         
         d_sign_diff = d_sign_diff(~isnan(d_sign_diff));
         
-        n_modes = sum(d_sign_diff < 0);
+        maxima = d_sign_diff < 0; 
         
-        basins = d_sign_diff > 0;
+        n_modes = sum(maxima);
+        
+        minima = d_sign_diff > 0;
        
         if n_modes == 2
-            basin_loc = find(basins);
-            cum_dens_0_to_b = nansum(pdf_logit_normal(1:basin_loc));
-            cum_dens_b_to_end = nansum(pdf_logit_normal(basin_loc:end));
+            % analysis of mode densities
+            min_loc = find(minima);
+            cum_dens_0_to_min = nansum(pdf_logit_normal(1:min_loc));
+            cum_dens_min_to_end = nansum(pdf_logit_normal(min_loc:end));
             
-            ratio = min([cum_dens_0_to_b, cum_dens_b_to_end]) / max([cum_dens_0_to_b, cum_dens_b_to_end]) ;
+            ratio = min([cum_dens_0_to_min, cum_dens_min_to_end]) / max([cum_dens_0_to_min, cum_dens_min_to_end]) ;
             
-            test(sig_i, mu_i) = ratio;
+            mode_density_ratio(sig_i, mu_i) = ratio;
+            
+            %analysis of mode separation:
+            max_loc = find(maxima);
+            
+            x_max = x_logit_normal(max_loc);
+            
+            mode_dist = x_max(2) - x_max(1);
+            
+            mode_distance(sig_i, mu_i) = mode_dist;
+            
+            
             
         end
         
@@ -103,7 +119,13 @@ for sig = sig_vals
 end
 
 figure(2)
-imagesc(test)
+imagesc(mode_density_ratio)
+
+figure(3)
+imagesc(mode_distance)
+
+dlmwrite('mode_dist_mu_vs_sig.csv', mode_distance);
+dlmwrite('mode_ratio_mu_vs_sig.csv', mode_density_ratio);
 
 
 

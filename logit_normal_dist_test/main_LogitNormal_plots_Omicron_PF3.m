@@ -3,11 +3,11 @@
 n = 1000000;
 
 dx = 0.001;
-x_logit_normal = (dx-(dx/2:dx:1)';
+x_logit_normal = (0:dx:1)';
 
 
 %% relaxing both the underlying dist. and the logistic mapping: 
-mu_1 = 1;
+mu_1 = -1;
 sig_1 = 2;
 
 x_normal = ((mu_1 - 4*sig_1):dx:(mu_1 + 4*sig_1))';
