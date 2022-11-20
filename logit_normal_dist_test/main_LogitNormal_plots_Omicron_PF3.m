@@ -1,5 +1,7 @@
 % testing parameterisation of logit-normal distribution 
 
+clear all
+
 n = 1000000;
 
 dx = 0.001;
@@ -7,23 +9,23 @@ x_logit_normal = (0:dx:1)';
 
 
 %% relaxing both the underlying dist. and the logistic mapping: 
-mu_1 = -1;
-sig_1 = 2;
+mu_1 = -1.4; %approx. 10 wks waning of PF3 (peak is -0.8)
+sig_1 = 1;
 
 x_normal = ((mu_1 - 4*sig_1):dx:(mu_1 + 4*sig_1))';
 
 general_normal = makedist('Normal', 'mu', mu_1, 'sigma', sig_1); %call this N(mu_1, sig_1)
 pdf_normal = pdf(general_normal, x_normal);
 
-figure(1)
+figure(2)
 plot(x_normal, pdf_normal, 'k-')
 
 L = 1
-k =  1
-x0 = 0
+k =  2.4
+x0 = -1
 y2_general_logistic = general_logistic(x_normal, L, k, x0);
 
-figure(1)
+figure(2)
 hold on
 plot(x_normal, y2_general_logistic, 'r-')
 hold off

@@ -1,12 +1,12 @@
 clear all 
-close all
+
 
 n = 10000;
 
 t1 = 0
 
 % time in weeks. 
-t2 = 0
+t2 = 10
 
 %t2 = 34
 
@@ -58,9 +58,9 @@ pd_lognormal_e = fitdist(neuts_e, 'Lognormal')
 pd_lognormal_10 = fitdist(neuts_10, 'Lognormal')
 
 figure(1)
-histogram(eff_aq_b10, 'BinEdges', 0:0.01:1)
+histogram(eff_aq_b10, 'BinEdges', 0:0.01:1, 'Normalization', 'pdf')
 hold on
-histogram(eff_aq_be, 'BinEdges', 0:0.01:1)
+histogram(eff_aq_be, 'BinEdges', 0:0.01:1, 'Normalization', 'pdf')
 hold off
 
 

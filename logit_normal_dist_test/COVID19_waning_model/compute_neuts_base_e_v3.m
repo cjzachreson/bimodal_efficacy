@@ -55,21 +55,30 @@ if ~strcmp(vac_type, 'naive')
     
     log_neut = base10_to_base_e(log10_neut);
     
-    log_neuts_dist = makedist('normal', 'mu', log_neut, 'sigma', sd_log_neut_titres);
+    log_neut = log_neut+ omicron_log_neut_fold;
     
-    log_neuts_0_i = random(log_neuts_dist);
+    dt_vac = (t - t_last_vac) * 7; % convert weeks to days.
+    
+    mean_neut_t = neut_decay(exp(log_neut), dt_vac, neut_decay_rate);
+    
+    log_neut_t = log(mean_neut_t);
+    
+    
+    log_neuts_dist_t = makedist('normal', 'mu', log_neut_t, 'sigma', sd_log_neut_titres);
+    
+    log_neuts_t_i = random(log_neuts_dist_t);
     
     % for omicron
     % NOTE: the neut_fold factor should only be used if the person has NOT
     % been infected with Omicron before. Unclear precisely how to implement
     % multistrain immune evasion. 
-    log_neuts_0_i = log_neuts_0_i + omicron_log_neut_fold;
+    log_neuts_t_i = log_neuts_t_i; %+ omicron_log_neut_fold;
     
-    dt_vac = (t - t_last_vac) * 7; % convert weeks to days.
+   
     
-    neuts_0 = exp(log_neuts_0_i);
+    neuts_t = exp(log_neuts_t_i);
     
-    neuts_t = neut_decay(neuts_0, dt_vac, neut_decay_rate);
+    %neuts_t = neut_decay(neuts_0, dt_vac, neut_decay_rate);
     
     log_neuts_t = log(neuts_t);
     
