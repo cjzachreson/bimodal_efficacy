@@ -5,7 +5,7 @@ close all
 
 % define vaccine efficacy distribution
  eff_dist_label = 'constant'; %354
- %eff_dist_label = 'uniform';
+ %eff_dist_label = 'all-or-nothing';
 % eff_dist_label = 'logit-normal'; %274
 
 
@@ -40,7 +40,7 @@ N = 1000;
 
 %raw transmission probability per susceptible contact.
 %note this is altered by vaccination.
-p_trans = 1 - exp(-1 * dt * beta/N);
+%p_trans = 1 - exp(-1 * dt * beta/N);
 
 p_recover = 1 - exp(-1 * dt * gamma);
 

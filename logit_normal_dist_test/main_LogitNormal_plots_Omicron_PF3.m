@@ -2,14 +2,14 @@
 
 clear all
 
-n = 1000000;
+%n = 1000000;
 
 dx = 0.001;
 x_logit_normal = (0:dx:1)';
 
 
 %% relaxing both the underlying dist. and the logistic mapping: 
-mu_1 = -1.4; %approx. 10 wks waning of PF3 (peak is -0.8)
+mu_1 = -1.4; %approx. 10 wks waning of PF3 (peak i.e., t=0 is -0.8)
 sig_1 = 1;
 
 x_normal = ((mu_1 - 4*sig_1):dx:(mu_1 + 4*sig_1))';
