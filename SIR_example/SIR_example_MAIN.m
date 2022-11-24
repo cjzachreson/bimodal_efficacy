@@ -3,12 +3,12 @@
 clear all
 close all
 
-model_types = {'constant', 'all-or-nothing', 'logit-normal'}
+model_types = {'logit-normal'}%{'constant', 'all-or-nothing', 'logit-normal'}
 
 for m = 1:numel(model_types)
     
     % uniform population, frequency-dependent transmission.
-    k_runs = 50; %number of stochastic runs for each SIR simulation.
+    k_runs = 100; %number of stochastic runs for each SIR simulation.
     
     % define vaccine efficacy distribution
     %eff_dist_label = 'constant';
