@@ -1,11 +1,12 @@
 %SIR example MAIN
 
+
 clear all
 close all
 
 
-%model_types = {'logit-normal'}%{'constant', 'all_or_nothing', 'logit_normal'}
-model_types = {'constant'}
+model_types = {'constant', 'all_or_nothing', 'logit_normal'}
+%model_types = {'logit_normal'}
 %WARNING: these model type labels link to the efficacy
 %distribution function, should make this more robust (globals?) 
 
@@ -20,7 +21,7 @@ for m = 1:numel(model_types)
     
     eff_dist_label = model_types{m};
     
-    output_dirname = [pwd(), '\' eff_dist_label '\results_2022_11_25\'];
+    output_dirname = [pwd(), '\results_2022_11_25\', eff_dist_label '\' ];
 
     if ~isfolder(output_dirname)
         mkdir(output_dirname)
@@ -50,7 +51,9 @@ for m = 1:numel(model_types)
     d_mu = 0.1;
     mu_f = 5;
     
-    mu_vals = mu_1:d_mu:mu_f;
+    %mu_vals = mu_1:d_mu:mu_f;
+    % these are now defined inside the parfor loop to reduce overhead
+    % apparently... 
     
     % lookup table for the same mu and sig vals:
     Eff_mat_fname = ['Eff_mean_mu_vs_sig.csv'];
@@ -78,11 +81,15 @@ for m = 1:numel(model_types)
     
    
     
-    mu_indices = 1:numel(mu_vals);
     
-    for sig_i = 1:numel(sig_vals)
+    
+    parfor sig_i = 1:numel(sig_vals)
         
         sig = sig_vals(sig_i);
+        
+        mu_vals = mu_1:d_mu:mu_f;
+        
+        mu_indices = 1:numel(mu_vals);
         
         for mu_i = mu_indices%1:numel(mu_vals)
             

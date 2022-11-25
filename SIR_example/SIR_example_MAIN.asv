@@ -1,11 +1,12 @@
 %SIR example MAIN
 
+
 clear all
 close all
 
 
-%model_types = {'logit-normal'}%{'constant', 'all_or_nothing', 'logit_normal'}
-model_types = {'constant'}
+model_types = {'constant', 'all_or_nothing', 'logit_normal'}
+%model_types = {'logit_normal'}
 %WARNING: these model type labels link to the efficacy
 %distribution function, should make this more robust (globals?) 
 
@@ -20,7 +21,7 @@ for m = 1:numel(model_types)
     
     eff_dist_label = model_types{m};
     
-    output_dirname = [pwd(), '\' eff_dist_label '\results_2022_11_25\'];
+    output_dirname = [pwd(), '\results_2022_11_25\', eff_dist_label '\' ];
 
     if ~isfolder(output_dirname)
         mkdir(output_dirname)
@@ -50,7 +51,9 @@ for m = 1:numel(model_types)
     d_mu = 0.1;
     mu_f = 5;
     
-    mu_vals = mu_1:d_mu:mu_f;
+    %mu_vals = mu_1:d_mu:mu_f;
+    % these are now defined inside the parfor loop to reduce overhead
+    % apparentl
     
     % lookup table for the same mu and sig vals:
     Eff_mat_fname = ['Eff_mean_mu_vs_sig.csv'];
@@ -78,11 +81,15 @@ for m = 1:numel(model_types)
     
    
     
-    mu_indices = 1:numel(mu_vals);
     
-    for sig_i = 1:numel(sig_vals)
+    
+    parfor sig_i = 1:numel(sig_vals)
         
         sig = sig_vals(sig_i);
+        
+        mu_vals = mu_1:d_mu:mu_f;
+        
+        mu_indices = 1:numel(mu_vals);
         
         for mu_i = mu_indices%1:numel(mu_vals)
             
@@ -217,6 +224,7 @@ for m = 1:numel(model_types)
             
             %apply case threshold and compute summary stats: 
             p_outbreak_th(sig_i, mu_i) = nnz(final_size_sig_mu >= OB_threshold) / k_runs;
+            
             final_size_th(sig_i, mu_i) = mean(final_size_sig_mu_th);
             
             final_size_q90_th(sig_i, mu_i) = quantile(final_size_sig_mu_th, 0.9);
@@ -230,6 +238,7 @@ for m = 1:numel(model_types)
         
     end
     
+    %labels for raw summary stats: 
     flabel_final_size = ['final_size_k_' num2str(k_runs) '_' eff_dist_label '.csv' ];
     flabel_p_outbreak = ['p_outbreak_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
     flabel_final_size_q90 = ['final_size_q90_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
@@ -239,21 +248,34 @@ for m = 1:numel(model_types)
     flabel_final_size_q75 = ['final_size_q75_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
     
     
-    %summary stats with threshold: 
+    %labels summary stats with threshold: 
     flabel_final_size_th = ['final_size_k_' num2str(k_runs) '_' eff_dist_label '_th.csv' ];
     flabel_p_outbreak_th = ['p_outbreak_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
     
     flabel_final_size_q25_th = ['final_size_q25_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
     flabel_final_size_q50_th = ['final_size_q50_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
-    flabel_final_size_q75_th = ['final_size_q75_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
-    flabel_final_size_q90_th = ['final_size_q90_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
+    flabel_final_size_q75_th = ['final_size_q75_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    flabel_final_size_q90_th = ['final_size_q90_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
     
-    dlmwrite([output_dirname, flabel_final_size_th], final_size);
+    % write summary stats to file: 
+    
+    %raw
+    dlmwrtie([output_dirname, flabel_p_outbreak], p_outbreak);
+    dlmwrite([output_dirname, flabel_final_size], final_size);
+    
     dlmwrite([output_dirname, flabel_final_size_q90], final_size_q90);
-    
     dlmwrite([output_dirname, flabel_final_size_q25], final_size_q25);
     dlmwrite([output_dirname, flabel_final_size_q50], final_size_q50);
     dlmwrite([output_dirname, flabel_final_size_q75], final_size_q75);
+    
+    %with threshold: 
+    dlmwrtie([output_dirname, flabel_p_outbreak_th], p_outbreak_th);
+    dlmwrite([output_dirname, flabel_final_size_th], final_size_th);
+    
+    dlmwrite([output_dirname, flabel_final_size_q90_th], final_size_q90_th);
+    dlmwrite([output_dirname, flabel_final_size_q25_th], final_size_q25_th);
+    dlmwrite([output_dirname, flabel_final_size_q50_th], final_size_q50_th);
+    dlmwrite([output_dirname, flabel_final_size_q75_th], final_size_q75_th);
     
 end
 
