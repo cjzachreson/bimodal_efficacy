@@ -3,9 +3,33 @@
 clear all
 close all
 
-model_types = {'logit-normal'}%{'constant', 'all-or-nothing', 'logit-normal'}
+
+%model_types = {'logit-normal'}%{'constant', 'all_or_nothing', 'logit_normal'}
+model_types = {'constant'}
+%WARNING: these model type labels link to the efficacy
+%distribution function, should make this more robust (globals?) 
+
+%NOTE: should output variance or IQR of final size over k samples. 
+% adding 10th, 90th, 
+
+OB_threshold = 10; %used for selecting a subset of outbreak stats not subject to stochastic die-out. 
+
+seed = 1;
 
 for m = 1:numel(model_types)
+    
+    eff_dist_label = model_types{m};
+    
+    output_dirname = [pwd(), '\' eff_dist_label '\results_2022_11_25\'];
+
+    if ~isfolder(output_dirname)
+        mkdir(output_dirname)
+    end
+
+    
+    % reseeding rng before each set (not sure if this will reduce variance
+    % in heatmaps, but it's worth a try). 
+    rng(seed)
     
     % uniform population, frequency-dependent transmission.
     k_runs = 100; %number of stochastic runs for each SIR simulation.
@@ -15,7 +39,6 @@ for m = 1:numel(model_types)
     %eff_dist_label = 'all-or-nothing';
     % eff_dist_label = 'logit-normal';
     
-    eff_dist_label = model_types{m};
     
     sig_1 = 0.05;
     d_sig = 0.05;
@@ -33,15 +56,31 @@ for m = 1:numel(model_types)
     Eff_mat_fname = ['Eff_mean_mu_vs_sig.csv'];
     mean_eff_mat = dlmread(Eff_mat_fname);
     
+    
+    % summary stats: 
     p_outbreak = NaN(size(mean_eff_mat));
     final_size = NaN(size(mean_eff_mat));
     final_size_q90 = NaN(size(mean_eff_mat));
     
-    sig_i = 0;
+    final_size_q25 = NaN(size(mean_eff_mat));
+    final_size_q50 = NaN(size(mean_eff_mat));
+    final_size_q75 = NaN(size(mean_eff_mat));
+    
+    %summary stats with case threshold applied:
+    p_outbreak_th = NaN(size(mean_eff_mat));
+    final_size_th = NaN(size(mean_eff_mat));
+    final_size_q90_th = NaN(size(mean_eff_mat));
+    
+    final_size_q25_th = NaN(size(mean_eff_mat));
+    final_size_q50_th = NaN(size(mean_eff_mat));
+    final_size_q75_th = NaN(size(mean_eff_mat));
+    
+    
+   
     
     mu_indices = 1:numel(mu_vals);
     
-    parfor sig_i = 1:numel(sig_vals)
+    for sig_i = 1:numel(sig_vals)
         
         sig = sig_vals(sig_i);
         
@@ -158,15 +197,7 @@ for m = 1:numel(model_types)
                 final_size_sig_mu(i) = sum(R);
                 
                 % do some checks here...
-                %             figure(1)
-                %             plot(total_infected, 'Color', [1, 0, 0, 0.2])
-                %             hold on
-                %             figure(2)
-                %             plot(total_recovered,  'Color', [1, 0, 0, 0.2])
-                %             hold on
-                %             figure(3)
-                %             plot(total_susceptible,  'Color', [1, 0, 0, 0.2])
-                %             hold on
+
                 
                 
             end
@@ -174,21 +205,70 @@ for m = 1:numel(model_types)
             final_size(sig_i, mu_i) = mean(final_size_sig_mu);
             
             final_size_q90(sig_i, mu_i) = quantile(final_size_sig_mu, 0.9);
+            final_size_q25(sig_i, mu_i) = quantile(final_size_sig_mu, 0.25);
+            final_size_q50(sig_i, mu_i) = quantile(final_size_sig_mu, 0.5);
+            final_size_q75(sig_i, mu_i) = quantile(final_size_sig_mu, 0.75);
             
             p_outbreak(sig_i, mu_i) = nnz(final_size_sig_mu > 1) / k_runs;
+            
+            final_size(sig_i, mu_i) = mean(final_size_sig_mu);
+            
+            final_size_sig_mu_th = final_size_sig_mu(final_size_sig_mu >= OB_threshold);
+            
+            %apply case threshold and compute summary stats: 
+            p_outbreak_th(sig_i, mu_i) = nnz(final_size_sig_mu >= OB_threshold) / k_runs;
+            
+            final_size_th(sig_i, mu_i) = mean(final_size_sig_mu_th);
+            
+            final_size_q90_th(sig_i, mu_i) = quantile(final_size_sig_mu_th, 0.9);
+            final_size_q25_th(sig_i, mu_i) = quantile(final_size_sig_mu_th, 0.25);
+            final_size_q50_th(sig_i, mu_i) = quantile(final_size_sig_mu_th, 0.5);
+            final_size_q75_th(sig_i, mu_i) = quantile(final_size_sig_mu_th, 0.75);
+            
             
             
         end
         
     end
     
+    %labels for raw summary stats: 
     flabel_final_size = ['final_size_k_' num2str(k_runs) '_' eff_dist_label '.csv' ];
     flabel_p_outbreak = ['p_outbreak_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
     flabel_final_size_q90 = ['final_size_q90_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
     
-    dlmwrite(flabel_final_size, final_size);
-    dlmwrite(flabel_p_outbreak, p_outbreak);
-    dlmwrite(flabel_final_size_q90, final_size_q90);
+    flabel_final_size_q25 = ['final_size_q25_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
+    flabel_final_size_q50 = ['final_size_q50_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
+    flabel_final_size_q75 = ['final_size_q75_k_' num2str(k_runs) '_' eff_dist_label '.csv'];
+    
+    
+    %labels summary stats with threshold: 
+    flabel_final_size_th = ['final_size_k_' num2str(k_runs) '_' eff_dist_label '_th.csv' ];
+    flabel_p_outbreak_th = ['p_outbreak_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    
+    flabel_final_size_q25_th = ['final_size_q25_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    flabel_final_size_q50_th = ['final_size_q50_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    flabel_final_size_q75_th = ['final_size_q75_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    flabel_final_size_q90_th = ['final_size_q90_k_' num2str(k_runs) '_' eff_dist_label '_th.csv'];
+    
+    % write summary stats to file: 
+    
+    %raw
+    dlmwrtie([output_dirname, flabel_p_outbreak], p_outbreak);
+    dlmwrite([output_dirname, flabel_final_size], final_size);
+    
+    dlmwrite([output_dirname, flabel_final_size_q90], final_size_q90);
+    dlmwrite([output_dirname, flabel_final_size_q25], final_size_q25);
+    dlmwrite([output_dirname, flabel_final_size_q50], final_size_q50);
+    dlmwrite([output_dirname, flabel_final_size_q75], final_size_q75);
+    
+    %with threshold: 
+    dlmwrtie([output_dirname, flabel_p_outbreak_th], p_outbreak_th);
+    dlmwrite([output_dirname, flabel_final_size_th], final_size_th);
+    
+    dlmwrite([output_dirname, flabel_final_size_q90_th], final_size_q90_th);
+    dlmwrite([output_dirname, flabel_final_size_q25_th], final_size_q25_th);
+    dlmwrite([output_dirname, flabel_final_size_q50_th], final_size_q50_th);
+    dlmwrite([output_dirname, flabel_final_size_q75_th], final_size_q75_th);
     
 end
 
@@ -217,13 +297,13 @@ if strcmp(eff_dist_label, 'constant')
     % everyone gets the average efficacy
     Eff = ones(N, 1) * average_efficacy;
     
-elseif strcmp(eff_dist_label, 'all-or-nothing')
+elseif strcmp(eff_dist_label, 'all_or_nothing')
     
     n_all = round(N * average_efficacy);
     Eff(1:n_all) = 1.0;
     Eff((n_all + 1):end) = 0.0;
     
-elseif strcmp(eff_dist_label, 'logit-normal')
+elseif strcmp(eff_dist_label, 'logit_normal')
     neut_dist = makedist('Normal', 'mu', mu_neuts, 'sigma', sig_neuts);
     neuts = random(neut_dist, [N, 1]);
     Eff = general_logistic(neuts, L, k, x0);
