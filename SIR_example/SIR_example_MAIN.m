@@ -5,7 +5,8 @@ clear all
 close all
 
 
-model_types = {'constant', 'all_or_nothing', 'logit_normal'}
+% model_types = {'constant','all_or_nothing', 'logit_normal'}
+model_types = {'all_or_nothing', 'logit_normal'}
 %model_types = {'logit_normal'}
 %WARNING: these model type labels link to the efficacy
 %distribution function, should make this more robust (globals?) 
@@ -51,9 +52,9 @@ for m = 1:numel(model_types)
     d_mu = 0.1;
     mu_f = 5;
     
-    %mu_vals = mu_1:d_mu:mu_f;
-    % these are now defined inside the parfor loop to reduce overhead
-    % apparently... 
+    mu_vals = mu_1:d_mu:mu_f;
+        
+    mu_indices = 1:numel(mu_vals);
     
     % lookup table for the same mu and sig vals:
     Eff_mat_fname = ['Eff_mean_mu_vs_sig.csv'];
@@ -86,10 +87,7 @@ for m = 1:numel(model_types)
     parfor sig_i = 1:numel(sig_vals)
         
         sig = sig_vals(sig_i);
-        
-        mu_vals = mu_1:d_mu:mu_f;
-        
-        mu_indices = 1:numel(mu_vals);
+       
         
         for mu_i = mu_indices%1:numel(mu_vals)
             
@@ -260,7 +258,7 @@ for m = 1:numel(model_types)
     % write summary stats to file: 
     
     %raw
-    dlmwrtie([output_dirname, flabel_p_outbreak], p_outbreak);
+    dlmwrite([output_dirname, flabel_p_outbreak], p_outbreak);
     dlmwrite([output_dirname, flabel_final_size], final_size);
     
     dlmwrite([output_dirname, flabel_final_size_q90], final_size_q90);
@@ -269,7 +267,7 @@ for m = 1:numel(model_types)
     dlmwrite([output_dirname, flabel_final_size_q75], final_size_q75);
     
     %with threshold: 
-    dlmwrtie([output_dirname, flabel_p_outbreak_th], p_outbreak_th);
+    dlmwrite([output_dirname, flabel_p_outbreak_th], p_outbreak_th);
     dlmwrite([output_dirname, flabel_final_size_th], final_size_th);
     
     dlmwrite([output_dirname, flabel_final_size_q90_th], final_size_q90_th);
