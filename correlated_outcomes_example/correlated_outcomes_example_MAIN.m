@@ -55,25 +55,26 @@ p_death_given_infection = CFR * (1 - eff_death_given_infection);
 % sample cases from cdf of rr_aq
 n_cases = 10000;
 cases = NaN(n_cases, 1);
-cases_eff_death_given_infection = NaN(n_cases, 1);
-cases_eff_death = NaN(n_cases, 1);
-cases_eff_acquisition = NaN(n_cases, 1);
+
+% cases_eff_death_given_infection = NaN(n_cases, 1);
+% cases_eff_death = NaN(n_cases, 1);
+% cases_eff_acquisition = NaN(n_cases, 1);
 
 % finite distribution function
 cdf_rr_aq = cumsum(rr_aq) ./ sum(rr_aq);
 
-for i = 1:n_cases
-    j = eval_cdf(cdf_rr_aq, [1:n]);
-    cases_eff_death_given_infection(i) = eff_death_given_infection(j);
-    cases_eff_death(i) = eff_death(j);
-    cases_eff_acquisition(i) = eff_acquisition(j);
-end
+% for i = 1:n_cases
+%     j = eval_cdf(cdf_rr_aq, [1:n]);
+%     cases_eff_death_given_infection(i) = eff_death_given_infection(j);
+%     cases_eff_death(i) = eff_death(j);
+%     cases_eff_acquisition(i) = eff_acquisition(j);
+% end
 
 
-%     j = randsample(n, n_cases, true, rr_aq.* 0.001);
-%     cases_eff_death_given_infection = eff_death_given_infection(j);
-%     cases_eff_death = eff_death(j);
-%     cases_eff_acquisition = eff_acquisition(j);
+    j = randsample(n, n_cases, true, rr_aq.* 0.001);
+    cases_eff_death_given_infection = eff_death_given_infection(j);
+    cases_eff_death = eff_death(j);
+    cases_eff_acquisition = eff_acquisition(j);
 
 
 % evaluate p_death_given_infection for sampled cases. 
@@ -109,29 +110,9 @@ eff_mean = mean(eff_death)
 
 
 
-    
-
-
-
-    
-
-        
-        
-
-    
-   
-    
-
-
-
-
-
-
 
 function y = general_logistic(x, L, k, x0)
-
     y = L ./ (1 + exp(-k * (x - x0)));
-
 end
 
 
