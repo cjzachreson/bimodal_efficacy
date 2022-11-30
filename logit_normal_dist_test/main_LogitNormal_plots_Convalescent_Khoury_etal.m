@@ -24,7 +24,7 @@ lambda = log(2)/t_half;
 %linear decay of log neuts: 
 mu_1 = mu_1 - lambda * (t2 - t1)
 
-sig_1 = 1.07; % Cromer et al. 
+sig_1 = 1.07; % Cromer et al. (changed to base e)
 
 x_normal = ((mu_1 - 4*sig_1):dx:(mu_1 + 4*sig_1))';
 

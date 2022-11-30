@@ -1,5 +1,10 @@
 %correlated output example MAIN
 
+%khoury et al: 
+%https://www.nature.com/articles/s41591-021-01377-8#Sec20
+%supp: 
+%https://static-content.springer.com/esm/art%3A10.1038%2Fs41591-021-01377-8/MediaObjects/41591_2021_1377_MOESM1_ESM.pdf
+
 clear all
 
 
