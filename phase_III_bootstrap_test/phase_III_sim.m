@@ -11,6 +11,7 @@
 %https://static-content.springer.com/esm/art%3A10.1038%2Fs41591-021-01377-8/MediaObjects/41591_2021_1377_MOESM1_ESM.pdf
 
 clear all
+close all
 
 
 % define neut distribution:
@@ -67,7 +68,7 @@ sd_neuts = base10_to_base_e(sd_neuts);
 
 
 % simulate the phase III trial: 
-p_base = 0.01; % p(infected | unvaccinated)
+p_base = 0.1; % p(infected | unvaccinated)
 
 n = 100000;
 
@@ -83,33 +84,49 @@ eff_mean = mean(eff_ind_LN);
 
 %all or nothing: 
 eff_ind_AoN = NaN([n, 1]);
-n_all = round(N * average_efficacy);
+n_all = round(n * eff_mean);
 eff_ind_AoN(1:n_all) = 1.0;
 eff_ind_AoN((n_all + 1):end) = 0.0;
   
 
 % Leaky: 
-eff_ind_Leaky = ones(N, 1) * eff_mean;
+eff_ind_Leaky = ones(n, 1) * eff_mean;
 
+k = 1000; %number of bootstraps
+m = 10; %number of samples in each bootstrap
+
+
+bstrap_AoN = bootstrap_outcomes(k, m, eff_ind_AoN, p_base);
+
+bstrap_Leaky = bootstrap_outcomes(k, m, eff_ind_Leaky, p_base);
+
+bstrap_LN = bootstrap_outcomes(k, m, eff_ind_LN, p_base);
+
+figure(1)
+histogram(bstrap_AoN, 'numbins', 10)
+figure(2)
+histogram(bstrap_Leaky, 'numbins', 10)
+figure(3)
+histogram(bstrap_LN, 'numbins', 10)
    
-
-function bs_phIII_dist = bootstrap_outcomes(k, m, eff_dist, p0)
+%TODO: test this function. 
+function eff_bstrap_dist = bootstrap_outcomes(k, m, eff_dist, p0)
 
 % k is number of bootstrap samples to examine
 % m is number of samples in each bootstrap
 % eff_dist is the underlying 'ground truth' efficacy distribution 
 
-    eff_bs = NaN([k, 1]);
+    eff_bstrap_dist = NaN([k, 1]);
 
     for i = 1:k
 
-        bs_i = randsample(eff_dist, m)
+        bs_i = randsample(eff_dist, m);
         
-        p_true = p0 .* (1 - bs_i)
+        p_true = p0 .* (1 - bs_i);
         
         n_infections = sum(rand([m, 1]) < p_true); 
 
-        eff_bs(i) = 1 - (n_infections/m) / p0;
+        eff_bstrap_dist(i) = 1 - (n_infections/m) / p0;
         
     end
 
