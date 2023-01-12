@@ -42,8 +42,6 @@ for sig = sig_vals
         logit_normal_sample = standard_logistic(x_sample);
         
         Eff_mean(sig_i, mu_i) =  mean(logit_normal_sample);
-        
-        %do a ton of samples and compute the mean. 
 
     end
     
@@ -56,30 +54,8 @@ imagesc(Eff_mean)
 dlmwrite('Eff_mean_mu_vs_sig.csv', Eff_mean);
 
 
-
-
-function p_LN = logit_normal_pdf(mu, sig, x)
-
-    term_1 = 1./(sig * sqrt(2*pi));
-
-    term_2 = 1./(x.*(1-x));
-
-    logit_x = log(x./(1 - x));
-
-    term_3 = exp(- (logit_x - mu).^2 ./ (2*sig.^2));
-
-    p_LN = term_1 .* term_2 .* term_3;
-
-end
-
 function y = standard_logistic(x)
 
     y = 1 ./ (1 + exp(-x));
-
-end
-
-function y = general_logistic(x, L, k, x0)
-
-    y = L ./ (1 + exp(-k * (x - x0)));
 
 end

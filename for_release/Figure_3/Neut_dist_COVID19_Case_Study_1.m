@@ -6,6 +6,9 @@
 %supp:
 %https://static-content.springer.com/esm/art%3A10.1038%2Fs41591-021-01377-8/MediaObjects/41591_2021_1377_MOESM1_ESM.pdf
 
+%pooled standard deviation sd_neuts is from Cromer et al., 2021
+% https://doi.org/10.1016/S2666-5247(21)00267-6 table S3
+
 clear all
 close all
 
@@ -14,10 +17,7 @@ close all
     
     lambda_sig_label = ['const_lambda'];   
     
-    % define neut distribution:
-    
-    % global offset does not match the curves
-    % this means an offset is needed, but is a function of mu(t)
+    % define neut distribution
     
     % logistic transform parameters
     %from khoury et al.
@@ -56,7 +56,7 @@ close all
     neut_label = 'conv';
     
     
-    %from Cromer et al.
+    %from Cromer et al. (need link)
     sd_neuts = 0.465;
     
     
