@@ -8,3 +8,5 @@ The results in the paper can be reproduced using the scripts in the directory na
 Text descriptions of each method can be found in the supporting material accompanying the manuscript
 
 (note: a DOI will be included upon release of preprint)
+
+Revision notes: The directory 'revised' contains the updated set of figures after revision to the publication version of the draft. 
