@@ -1,0 +1,9 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Zachreson
+    given-names: Cameron
+    orcid: https://orcid.org/0000-0002-0578-4049
+title: cjzachreson/bimodal_efficacy: Scripts to supplement the article entitled "Individual variation in vaccine immune response can produce bimodal distributions of protection" 
+version: v1.0
+date-released: 2023-09-19
